@@ -1,0 +1,31 @@
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+# https://nette.org/security-warning
+#
+parameters:
+
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: App\*Module\Presenters\*Presenter
+
+
+session:
+	expiration: 14 days
+
+
+
+services:
+	- App\Model\UserManager
+	- App\Model\ProjectModel
+	- App\Components\FormFactory
+	- App\Components\SignInFormFactory
+	- App\Components\SignUpFormFactory
+	- App\Components\IProjectFormFactory
+
+	router: App\RouterFactory::createRouter 
+
+forms:
+    messages:
+        EMAIL: 'Email nemá správný formát.'
