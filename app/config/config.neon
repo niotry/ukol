@@ -19,9 +19,8 @@ session:
 services:
 	- App\Model\UserManager
 	- App\Model\ProjectModel
-	- App\Components\FormFactory
-	- App\Components\SignInFormFactory
-	- App\Components\SignUpFormFactory
+	- App\Components\ISignInFormFactory
+	- App\Components\ISignUpFormFactory
 	- App\Components\IProjectFormFactory
 
 	router: App\RouterFactory::createRouter 

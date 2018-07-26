@@ -25,7 +25,11 @@ class HomepagePresenter extends BasePresenter
     
     public function renderDefault()
     {
-            $this->template->projects = $this->projectModel->getProjects();
+        $userId = $this->getUser()->getId();
+        
+        $this->template->projects = $this->projectModel->getProjects($this->getUser()->isLoggedIn()? $userId:FALSE);
+        
+
     }
     
     public function renderCreate(){
@@ -94,6 +98,17 @@ class HomepagePresenter extends BasePresenter
             return $form;
     }
     
+    public function actionLike($projectId){
+        $this->projectModel->likeProject($projectId, $this->getUser()->getId());
+        $this->flashMessage('like');
+        $this->redirect('default');
+    }
+    
+    public function actionDislike($projectId){
+        $this->projectModel->dislikeProject($projectId, $this->getUser()->getId());
+        $this->flashMessage('dislike');
+        $this->redirect('default');
+    }
 
     
 }

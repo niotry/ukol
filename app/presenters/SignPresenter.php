@@ -2,39 +2,35 @@
 
 namespace App\Presenters;
 
-use App\Components;
+use App\Components\ISignInFormFactory;
+use App\Components\ISignUpFormFactory;
 use Nette\Application\UI\Form;
 
 
 class SignPresenter extends BasePresenter
 {
-	/** @persistent */
-	public $backlink = '';
-
-	/** @var Forms\SignInFormFactory */
-	private $signInFactory;
-
-	/** @var Forms\SignUpFormFactory */
-	private $signUpFactory;
 
 
-	public function __construct(Components\SignInFormFactory $signInFactory, Components\SignUpFormFactory $signUpFactory)
+	private $signInFormFactory;
+
+	private $signUpFormFactory;
+
+
+	public function __construct(ISignInFormFactory $signInFormFactory, ISignUpFormFactory $signUpFormFactory)
 	{
-		$this->signInFactory = $signInFactory;
-		$this->signUpFactory = $signUpFactory;
+		$this->signInFormFactory = $signInFormFactory;
+		$this->signUpFormFactory = $signUpFormFactory;
 	}
 
 
-	/**
-	 * Sign-in form factory.
-	 * @return Form
-	 */
 	protected function createComponentSignInForm()
 	{
-		return $this->signInFactory->create(function () {
-			$this->restoreRequest($this->backlink);
-			$this->redirect('Homepage:');
-		});
+                $form = $this->signInFormFactory->create();
+                $form ->onFormSubmit[] = function (){
+                   $this->redirect('Homepage:default');
+                };
+                
+                return $form;
 	}
 
 
@@ -44,9 +40,13 @@ class SignPresenter extends BasePresenter
 	 */
 	protected function createComponentSignUpForm()
 	{
-		return $this->signUpFactory->create(function () {
-			$this->redirect('Homepage:');
-		});
+            $form = $this->signUpFormFactory->create();
+            $form ->onFormSubmit[] = function (){
+                $this->redirect('Homepage:default');
+            };
+                
+            return $form;
+
 	}
 
 

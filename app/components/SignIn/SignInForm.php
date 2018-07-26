@@ -5,32 +5,29 @@ namespace App\Components;
 use Nette;
 use Nette\Application\UI\Form;
 use Nette\Security\User;
+use Nette\Application\UI\Control;
 
 
-class SignInFormFactory
+class SignInForm extends Control
 {
-	use Nette\SmartObject;
-
-	/** @var FormFactory */
-	private $factory;
-
+    
+        public $onFormSubmit;
 	/** @var User */
 	private $user;
 
-
-	public function __construct(FormFactory $factory, User $user)
+	public function __construct(User $user)
 	{
-		$this->factory = $factory;
 		$this->user = $user;
 	}
+        
+        public function render() {
+            $this->template->setFile(__DIR__ . '/SignInForm.latte');
+            $this->template->render();
+        }
 
-
-	/**
-	 * @return Form
-	 */
-	public function create(callable $onSuccess)
+	protected function createComponentForm()
 	{
-		$form = $this->factory->create();
+		$form = new Form();
 		$form->addText('username', 'Uživatelské jméno:')
 			->setRequired('Prosím zadejte své jméno.');
 
@@ -42,17 +39,30 @@ class SignInFormFactory
 		$form->addSubmit('send', 'Přihlásit')
                      ->setAttribute('class', 'btn btn-primary');
 
-		$form->onSuccess[] = function (Form $form, $values) use ($onSuccess) {
-			try {
+		$form->onSuccess[] = [$this, 'handleForm'];
+
+		return $form;
+	}
+        
+        public function handleForm(Form $form, $values){
+            if($form->isSuccess()){
+                        try {
 				$this->user->setExpiration($values->remember ? '14 days' : '20 minutes');
 				$this->user->login($values->username, $values->password);
+                                $this->onFormSubmit();
 			} catch (Nette\Security\AuthenticationException $e) {
 				$form->addError('Jméno či heslo je nesprávné.');
 				return;
 			}
-			$onSuccess();
-		};
+            }
+            
+        }
+}
 
-		return $form;
-	}
+interface ISignInFormFactory
+{
+    /**
+     * @return SignInForm
+     */
+    public function create();
 }

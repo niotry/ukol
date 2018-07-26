@@ -15,9 +15,46 @@ class ProjectModel{
         
     }
     
-    public function getProjects(){
-        return $this->database->table('projects');
-        
+    public function getProjects($userId = false){
+        if(!$userId){
+            return $this->database->table('projects');
+        } else {
+            
+            $projectsDTB = $this->database->table('projects')->fetchAll();
+            $likesDTB = $this->database->table('likes')->where('id_user', $userId)->fetchAll();
+            
+            $likes=[];
+            foreach ($likesDTB as $like){
+                $likes[]=[
+                    'id_project' => $like->id_project,
+                    'id_user' => $like->id_user,
+                    ];
+            }
+            
+            $projects=[];
+            foreach ($projectsDTB as $project){
+                $projects[]=[
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'date' => $project->date,
+                    'type' => $project->type,
+                    'isProject' => $project->isProject,
+                    'isLiked' => FALSE
+                    ];
+            }
+            $countRows = $this->database->table('projects')->count();
+ 
+            
+            foreach ($likes as $like){
+                for($i=0; $i<$countRows; $i++){
+                    if($projects[$i]['id']==$like['id_project']){
+                        $projects[$i]['isLiked']= TRUE;
+                    }
+                }
+            };
+            
+            return $projects;
+        }
     }
     
     public function saveProject($values, $projectId){
@@ -56,6 +93,15 @@ class ProjectModel{
         
         return $project;
         
+    }
+    
+    public function likeProject($projectId, $userId){
+        $this->database->table('likes')->insert(['id_project' => $projectId,
+                                                'id_user'    => $userId]);
+    }
+    
+    public function dislikeProject($projectId, $userId){
+        $this->database->table('likes')->where('id_project', $projectId)->where('id_user', $userId)->delete();
     }
     
     
