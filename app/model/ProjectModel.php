@@ -8,6 +8,7 @@ use Nette\Utils\ArrayHash;
 
 class ProjectModel{
     
+    
     private $database;
     
     public function __construct(Nette\Database\Context $database) {
@@ -23,14 +24,7 @@ class ProjectModel{
             $projectsDTB = $this->database->table('projects')->fetchAll();
             $likesDTB = $this->database->table('likes')->where('id_user', $userId)->fetchAll();
             
-            $likes=[];
-            foreach ($likesDTB as $like){
-                $likes[]=[
-                    'id_project' => $like->id_project,
-                    'id_user' => $like->id_user,
-                    ];
-            }
-            
+            // vytvoření a dodání sloupce isLiked do pole Projects
             $projects=[];
             foreach ($projectsDTB as $project){
                 $projects[]=[
@@ -42,10 +36,10 @@ class ProjectModel{
                     'isLiked' => FALSE
                     ];
             }
-            $countRows = $this->database->table('projects')->count();
- 
             
-            foreach ($likes as $like){
+            //přidělení likes k projektům
+            $countRows = count($projects);
+            foreach ($likesDTB as $like){
                 for($i=0; $i<$countRows; $i++){
                     if($projects[$i]['id']==$like['id_project']){
                         $projects[$i]['isLiked']= TRUE;
@@ -101,7 +95,9 @@ class ProjectModel{
     }
     
     public function dislikeProject($projectId, $userId){
-        $this->database->table('likes')->where('id_project', $projectId)->where('id_user', $userId)->delete();
+        $this->database->table('likes')->where('id_project', $projectId)
+                                       ->where('id_user', $userId)
+                                       ->delete();
     }
     
     

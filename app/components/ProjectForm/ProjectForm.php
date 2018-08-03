@@ -41,7 +41,7 @@ class ProjectForm extends Control{
         
         $form ->addText('date', 'Datum odevzdání:')
               ->setAttribute('placeHolder', 'DD.MM.YYYY')
-              ->addRule(FormValidator::DATE, 'Zadejte platný datum.') /* ->addRule(Form::PATTERN, 'Datum musí být ve formátu 15.10.2011', '([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})'*/
+              ->addRule($form::PATTERN, "Datum musí být ve formátu dd.mm.rrrr", "(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.(19|20)([0-9][0-9])") //->addRule(FormValidator::DATE, 'Zadejte platný datum.')
               ->setRequired('Zadejte datum odevzdání');
         
         $form ->addSelect('type', 'Typ projektu:', ['Omezený'=>'Omezený', 'Neomezený'=>'Neomezený'])

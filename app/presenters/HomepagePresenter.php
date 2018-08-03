@@ -25,10 +25,8 @@ class HomepagePresenter extends BasePresenter
     
     public function renderDefault()
     {
-        $userId = $this->getUser()->getId();
-        
-        $this->template->projects = $this->projectModel->getProjects($this->getUser()->isLoggedIn()? $userId:FALSE);
-        
+            $userId = $this->getUser()->getId();
+            $this->template->projects = $this->projectModel->getProjects($this->getUser()->isLoggedIn()? $userId:FALSE);
 
     }
     
@@ -59,29 +57,26 @@ class HomepagePresenter extends BasePresenter
     }
     
 
-    public function actionDelete($projectId){
+    public function handleDelete($projectId){
         if($this->getUser()->isLoggedIn()){
             
-            if($projectId){
-                
-                $isDeleted = $this->projectModel->deleteProject($projectId);
-                if($isDeleted){
-                    $this->flashMessage('Projekt úspěšně smazán.');
+                if($projectId){
+                    $isDeleted = $this->projectModel->deleteProject($projectId);
+                    if($isDeleted){
+                        $this->flashMessage('Projekt úspěšně smazán.', 'success');
+                        $this->redrawControl('projectTable');
+                    }else{
+                        $this->flashMessage('Projekt se nepodařilo vymazat.', 'error');
+                    }
+
                 }else{
-                    $this->flashMessage('Projekt se nepodařilo vymazat.');
+                    $this->flashMessage('Vyskytla se chyba.', 'error'); 
                 }
-                
-            }else{
-                $this->flashMessage('Vyskytla se chyba.', 'error'); 
-            }
-            
             
         }else{
             $this->flashMessage('Práce s projekty je umožněna pouze přihlášeným uživatelům.', 'error');
+            $this->redirect('default'); 
         }
-        
-        $this->redirect('default'); 
-        
     }
     
     protected function createComponentProjectForm() { 
@@ -98,16 +93,26 @@ class HomepagePresenter extends BasePresenter
             return $form;
     }
     
-    public function actionLike($projectId){
-        $this->projectModel->likeProject($projectId, $this->getUser()->getId());
-        $this->flashMessage('like');
-        $this->redirect('default');
+    public function handleLike($projectId){
+        if($this->isAjax()){
+            $this->projectModel->likeProject($projectId, $this->getUser()->getId());
+            $this->flashMessage('Tento projekt se mi líbí.', 'success');
+            $this->redrawControl('projectItems');
+        }else{
+            $this->redirect('default');   
+        }
     }
     
-    public function actionDislike($projectId){
-        $this->projectModel->dislikeProject($projectId, $this->getUser()->getId());
-        $this->flashMessage('dislike');
-        $this->redirect('default');
+    public function handleDislike($projectId){
+        
+        if($this->isAjax()){
+            $this->projectModel->dislikeProject($projectId, $this->getUser()->getId());
+            $this->flashMessage('Tento projekt se mi už nelíbí.', 'success');
+            $this->redrawControl('projectItems');
+        }else{
+            $this->redirect('default');
+        }
+        
     }
 
     

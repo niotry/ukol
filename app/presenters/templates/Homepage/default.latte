@@ -1,21 +1,24 @@
 {block content}
     <p n:block="title" hidden>Přehled projektů</p>
     <div class="container">
+        {snippet projectTable} 
         <table class="table table-hover">
+            <thead>
             <tr class="bg-dark text-white">
                 <th>Id</th>
                 <th>Název</th>
                 <th>Datum odevzdání</th>
                 <th>Typ</th>
-                <th>Webový projekt</th>
+                <th {if !$user->loggedIn}width="200px"{/if}>Webový projekt</th>
                 {if $user->loggedIn} 
-                        <th>{* like *}</th>
+                        <th class="text-dark">{* like *}&#x2764;</th>
                         <th><a n:href="Homepage:create" class="btn btn-success" style="width:160px">Přidat projekt</a></th> 
                 {/if}
             </tr>
-            {snippet projectsTable}    
-                {foreach $projects as $project}
-                    <tr>
+            </thead>
+            <tbody n:snippet="projectItems">
+                {foreach $projects as $projectId => $project}
+                    <tr n:snippet="project-$projectId">
                         <td>{$project['id']}</td>
                         <td>{$project['name']}</td>
                         <td>{$project['date']|date:'d. m. Y'}</td>
@@ -23,17 +26,18 @@
                         <td>{if $project['isProject']==0}Ne{else}Ano{/if}</td>
                         {if $user->loggedIn}
                             <td>
-                                {if $project['isLiked']}<a n:href="Homepage:dislike $project['id']">&#x2764;</a>{else}<a n:href="Homepage:like $project['id']">&#9825;</a>{/if} 
+                                {if $project['isLiked']}<a n:href="dislike! $project['id']" class="ajax text-danger">&#x2764;</a>{else}<a n:href="like! $project['id']" class="ajax text-danger">&#9825;</a>{/if} 
                             </td>
                             <td width="200px">
                                 <a n:href="Homepage:update $project['id']" class="btn btn-warning">Upravit</a> 
-                                <a n:href="Homepage:delete $project['id']" class="btn btn-danger" onclick="return confirm('Opravdu smazat {$project['name']}?')">Smazat</a>
+                                <a n:href="delete! $project['id']" class="ajax btn btn-danger" onclick="return confirm('Opravdu smazat {$project['name']}?')">Smazat</a>
                             </td>
                         {/if}    
                     </tr>
                 {/foreach}
-            {/snippet}
+            </tbody>
         </table>
+        {/snippet}
         {if !$user->loggedIn}
             <a n:href="Sign:in" class="btn btn-success">Přihlásit se</a>
             <a n:href="Sign:up" class="btn btn-success">Zaregistrovat</a> 
